@@ -1,0 +1,48 @@
+{
+    "name": "mini-vue",
+    "version": "1.0.0",
+    "description": "vue3 简易实现",
+    "scripts": {
+        "test": "jest",
+        "lint": "lint-staged",
+        "build": "rollup -c rollup.config.js",
+        "dev": "rollup -c rollup.config.js --watch"
+    },
+    "keywords": [
+        "vue3 jest"
+    ],
+    "author": "lucassss-li",
+    "license": "ISC",
+    "devDependencies": {
+        "@babel/core": "^7.17.8",
+        "@babel/preset-env": "^7.16.11",
+        "@babel/preset-typescript": "^7.16.7",
+        "@rollup/plugin-typescript": "^8.3.2",
+        "@types/jest": "^27.4.1",
+        "@typescript-eslint/eslint-plugin": "^5.16.0",
+        "@typescript-eslint/parser": "^5.16.0",
+        "babel-jest": "^27.5.1",
+        "eslint": "^8.11.0",
+        "eslint-config-prettier": "^8.5.0",
+        "husky": "^7.0.4",
+        "jest": "^27.5.1",
+        "lint-staged": "^12.3.7",
+        "prettier": "^2.6.0",
+        "rollup": "^2.72.1",
+        "tslib": "^2.4.0",
+        "typescript": "^4.6.2"
+    },
+    "lint-staged": {
+        "*.ts?(x)": [
+            "eslint",
+            "prettier --write"
+        ],
+        "*.js": [
+            "eslint",
+            "prettier --write"
+        ],
+        "*.json": [
+            "prettier --write"
+        ]
+    }
+}
