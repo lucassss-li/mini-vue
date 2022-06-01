@@ -356,4 +356,25 @@ describe('reactivity/effect', () => {
         expect(parentSpy).toHaveBeenCalledTimes(3)
         expect(childSpy).toHaveBeenCalledTimes(5)
     })
+    it('cleanup', () => {
+        let view = 0
+        const show = reactive({ flag: true })
+        const data1 = reactive({ value: 1 })
+        const data2 = reactive({ value: 2 })
+        const fn = jest.fn()
+        effect(() => {
+            view = show.flag ? data1.value : data2.value
+            fn()
+        })
+        expect(view).toBe(1)
+        expect(fn).toBeCalledTimes(1)
+        data1.value = 11
+        expect(view).toBe(11)
+        expect(fn).toBeCalledTimes(2)
+        show.flag = false
+        expect(view).toBe(2)
+        expect(fn).toBeCalledTimes(3)
+        data1.value = 111
+        expect(fn).toBeCalledTimes(3)
+    })
 })

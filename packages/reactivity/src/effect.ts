@@ -5,12 +5,22 @@ type Options = {
     scheduler?: (...args) => any
 }
 
+const fnToDeps = new Map()
+
+function cleanup() {
+    if (!activeFn) return
+    const fnDeps = fnToDeps.get(activeFn)
+    if (!fnDeps) return
+    fnDeps.forEach(deps => deps.delete(activeFn))
+}
+
 let activeFn: null | ((...argv) => any) = null
 export function effect(fn, options: Options = {}) {
     const { lazy, scheduler } = options
     const _fn = (flag = false) => {
         ;(_fn as any).parentFn = activeFn
         activeFn = _fn
+        cleanup()
         const res = !flag && scheduler ? scheduler() : fn()
         activeFn = (_fn as any).parentFn
         return res
@@ -37,6 +47,12 @@ export function track(target: any, key: string | symbol) {
         dep = new Set()
         deps.set(key, dep)
     }
+    let fnDeps = fnToDeps.get(activeFn)
+    if (!fnDeps) {
+        fnDeps = new Set()
+        fnToDeps.set(activeFn, fnDeps)
+    }
+    fnDeps.add(dep)
     dep.add(activeFn)
 }
 
