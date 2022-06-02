@@ -14,7 +14,7 @@ function cleanup() {
     fnDeps.forEach(deps => deps.delete(activeFn))
 }
 
-let activeFn: null | ((...argv) => any) = null
+export let activeFn: null | ((...argv) => any) = null
 export function effect(fn, options: Options = {}) {
     const { lazy, scheduler } = options
     const _fn = (flag = false) => {
