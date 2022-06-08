@@ -6,6 +6,7 @@ import {
     skipKeys,
     toRaw,
 } from './reactive'
+import { isRef } from './ref'
 
 export const baseHandlers = {
     get(target, key: string | symbol, receiver) {
@@ -22,13 +23,21 @@ export const baseHandlers = {
         if (skipKeys.has(key)) {
             return val
         }
+        if (isRef(val)) {
+            return val.value
+        }
         return reactive(val)
     },
     set(target, key: string | symbol, value: any, receiver) {
         const oldValue = Reflect.get(target, key, receiver)
         const rawValue = toRaw(value)
-        if (oldValue === rawValue) return rawValue
-        const res = Reflect.set(target, key, rawValue, receiver)
+        let res
+        if (isRef(oldValue)) {
+            res = oldValue.value = rawValue
+        } else {
+            if (oldValue === rawValue) return rawValue
+            res = Reflect.set(target, key, rawValue, receiver)
+        }
         toRaw(receiver) === target && trigger(target, key)
         return res
     },

@@ -2,6 +2,7 @@ import { baseHandlers } from './baseHandlers'
 import { collectionHandlers } from './collectionHandlers'
 
 import { isObject, toRawType } from './index'
+import { UnwrapNestedRefs } from './ref'
 
 export const skipKeys = new Set<string | symbol>(['__proto__'])
 
@@ -37,9 +38,8 @@ function getTargetType(target: unknown) {
 
 export const reactiveMap = new WeakMap<Target, any>()
 
-export function reactive<T extends object>(
-    target: T,
-): { [K in keyof T]: T[K] } {
+export function reactive<T extends object>(target: T): UnwrapNestedRefs<T>
+export function reactive<T extends object>(target: T) {
     if (!isObject(target)) {
         return target
     }

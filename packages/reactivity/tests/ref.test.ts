@@ -1,6 +1,6 @@
 import { effect } from '../src/effect'
 import { reactive } from '../src/reactive'
-import { ref } from '../src/ref'
+import { isRef, ref } from '../src/ref'
 
 describe('reactivity/ref', () => {
     it('happy path', () => {
@@ -48,14 +48,31 @@ describe('reactivity/ref', () => {
         a.value.count = 2
         expect(dummy).toBe(2)
     })
-    it('should work without initial value', () => {
-        const a = ref()
-        let dummy
-        effect(() => {
-            dummy = a.value
+    it('should work like a normal property when nested in a reactive object', () => {
+        const a = ref(1)
+        const obj = reactive({
+            a,
+            b: {
+                c: a,
+            },
         })
-        expect(dummy).toBe(undefined)
-        a.value = 2
-        expect(dummy).toBe(2)
+
+        let dummy1 = 0
+        let dummy2 = 0
+
+        effect(() => {
+            dummy1 = obj.a
+            dummy2 = obj.b.c
+        })
+
+        a.value++
+        expect(dummy1).toBe(2)
+        expect(dummy2).toBe(2)
+        obj.a++
+        expect(dummy1).toBe(3)
+        expect(dummy2).toBe(3)
+        obj.b.c++
+        expect(dummy1).toBe(4)
+        expect(dummy2).toBe(4)
     })
 })
