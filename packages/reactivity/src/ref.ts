@@ -4,10 +4,7 @@ import { reactive, toRaw } from './reactive'
 function isObject(val: any): val is object {
     return typeof val === 'object'
 }
-
-const RefSymbol = Symbol()
 export class RefImp<T = any> {
-    [RefSymbol]: true
     public dep?: Set<(...args) => any> = undefined
     public readonly __v_isRef = true
     constructor(private _value: T) {}

@@ -1,4 +1,4 @@
-import { hasOwn } from './index'
+import { hasOwn } from '../../shared/index'
 import { reactive, ReactiveFlags, toRaw } from './reactive'
 import { track, trigger } from './effect'
 

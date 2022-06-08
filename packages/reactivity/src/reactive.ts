@@ -1,7 +1,7 @@
 import { baseHandlers } from './baseHandlers'
 import { collectionHandlers } from './collectionHandlers'
 
-import { isObject, toRawType } from './index'
+import { isObject, toRawType } from '../../shared/index'
 import { UnwrapNestedRefs } from './ref'
 
 export const skipKeys = new Set<string | symbol>(['__proto__'])
