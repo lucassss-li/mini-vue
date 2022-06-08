@@ -6,3 +6,5 @@ export const toRawType = (val: unknown) =>
 
 export const hasOwn = (target: unknown, prop: string | symbol) =>
     Object.prototype.hasOwnProperty.call(target, prop)
+
+export const isString = (val: unknown) => toRawType(val) === 'String'
