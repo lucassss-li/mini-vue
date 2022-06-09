@@ -1,6 +1,7 @@
 import { createRenderer } from '../runtime-core/src/render'
 import { nodeOps } from './nodeOps'
-const renderOptions = { ...nodeOps }
+import { pathProps } from './pathProps'
+const renderOptions = { ...nodeOps, pathProps }
 
 let render
 function ensureRenderer() {

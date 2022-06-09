@@ -8,7 +8,7 @@ import { createAppAPI } from './createAppAPI'
 import { createTextVNode, ShapeFlags, TEXT } from './vnode'
 
 export function createRenderer(options) {
-    const { createElement, append } = options
+    const { createElement, append, pathProps } = options
 
     function render(vnode, container) {
         patch(vnode, container)
@@ -51,6 +51,7 @@ export function createRenderer(options) {
     function mountElement(vnode, container) {
         const { type, props, children } = vnode
         const element = createElement(type)
+        pathProps(element, props)
         append(container, element)
         processChildren(children, element)
     }
