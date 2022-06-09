@@ -13,7 +13,6 @@ export function createVNode(type, props = {}, children: any[] = []) {
         : isObject(type)
         ? ShapeFlags.COMPONENT
         : 0
-    console.log(shapeFlag, type)
 
     const vNode = {
         type,
