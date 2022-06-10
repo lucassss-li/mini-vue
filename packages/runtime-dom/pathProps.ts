@@ -2,12 +2,18 @@ import { camelCaseToKebabCase, isString, toRawType } from '../shared/index'
 
 export const pathProps = (el, props) => {
     for (const key in props) {
+        const value = props[key]
         if (key === 'class') {
-            pathClass(el, props[key])
+            pathClass(el, value)
         } else if (key === 'style') {
-            pathStyle(el, props[key])
+            pathStyle(el, value)
         } else {
-            el.setAttribute(key, props[key])
+            if (key.startsWith('on')) {
+                const eventName = key.slice(2).toLowerCase()
+                el.addEventListener(eventName, value)
+            } else {
+                el.setAttribute(key, value)
+            }
         }
     }
 }
