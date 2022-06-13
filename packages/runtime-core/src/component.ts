@@ -3,14 +3,23 @@ import { applyOptions } from './componentOptions'
 import { instanceProxyHandlers } from './InstanceProxyHandlers'
 
 export function createComponentInstance(vnode) {
-    const instance: any = { type: vnode.type, vnode }
+    const instance: any = {
+        type: vnode.type,
+        vnode,
+        props: {},
+    }
     instance.ctx = { _: instance }
     return instance
 }
 
 export function setupComponent(instance) {
+    initProps(instance, instance.vnode.props)
     const setupResult = setupStatefulComponent(instance)
     return setupResult
+}
+
+function initProps(instance, rawProps) {
+    instance.props = Object.assign(instance.props, rawProps)
 }
 
 function setupStatefulComponent(instance) {

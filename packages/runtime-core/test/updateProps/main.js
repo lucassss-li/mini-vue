@@ -1,4 +1,4 @@
 import { createApp } from '../../../../dist/vue-esm.js'
-import app from './app.js'
+import updateComponent from './updateComponent.js'
 const root = document.querySelector('#app')
-createApp(app).mount(root)
+createApp(updateComponent).mount(root)

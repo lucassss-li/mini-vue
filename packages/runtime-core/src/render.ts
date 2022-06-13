@@ -34,18 +34,23 @@ export function createRenderer(options) {
     }
     function processComponent(_vnode, vnode, container, anchor) {
         if (_vnode) {
-            patchComponent(_vnode, vnode, container, anchor)
+            patchComponent(_vnode, vnode)
+            // mountComponent(vnode, container, anchor)
         } else {
             mountComponent(vnode, container, anchor)
         }
     }
 
-    function patchComponent(_vnode, vnode, container, anchor) {
-        console.log('patch component')
+    function patchComponent(_vnode, vnode) {
+        const instance = (vnode.component = _vnode.component)
+        instance.vNode = vnode
+        instance.props = vnode.props
+        vnode.component.update()
     }
 
     function mountComponent(vnode, container, anchor) {
         const instance = createComponentInstance(vnode)
+        vnode.component = instance
         setupComponent(instance)
         setupRenderEffect(instance, container, anchor)
     }

@@ -7,7 +7,7 @@ export const applyOptions = instance => {
     if (isFunction(data)) {
         instance.data = reactive(data())
     } else {
-        console.log('data option should be a function that return an object')
+        instance.data = {}
     }
     if (isObject(methods)) {
         instance.methods = methods
