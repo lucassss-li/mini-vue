@@ -11,5 +11,7 @@ export const applyOptions = instance => {
     }
     if (isObject(methods)) {
         instance.methods = methods
+    } else {
+        instance.methods = {}
     }
 }

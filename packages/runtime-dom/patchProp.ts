@@ -1,24 +1,24 @@
 import { camelCaseToKebabCase, isString, toRawType } from '../shared/index'
 
-export const pathProps = (el, props) => {
-    for (const key in props) {
-        const value = props[key]
-        if (key === 'class') {
-            pathClass(el, value)
-        } else if (key === 'style') {
-            pathStyle(el, value)
+export const patchProp = (el, key, value, preValue) => {
+    if (key === 'class') {
+        patchClass(el, value)
+    } else if (key === 'style') {
+        patchStyle(el, value)
+    } else {
+        if (key.startsWith('on')) {
+            patchEvent(el, key, value, preValue)
         } else {
-            if (key.startsWith('on')) {
-                const eventName = key.slice(2).toLowerCase()
-                el.addEventListener(eventName, value)
-            } else {
+            if (value) {
                 el.setAttribute(key, value)
+            } else {
+                el.removeAttribute(key)
             }
         }
     }
 }
 
-const pathClass = (el, options) => {
+const patchClass = (el, options) => {
     const type = toRawType(options)
     switch (type) {
         case 'String': {
@@ -40,7 +40,7 @@ const pathClass = (el, options) => {
     }
 }
 
-const pathStyle = (el, options) => {
+const patchStyle = (el, options) => {
     if (isString(options)) {
         el.style.cssText = options
     } else {
@@ -48,4 +48,10 @@ const pathStyle = (el, options) => {
             el.style.setProperty(camelCaseToKebabCase(key), options[key])
         }
     }
+}
+
+const patchEvent = (el, key, value, preValue) => {
+    const eventName = key.slice(2).toLowerCase()
+    el.removeEventListener(eventName, preValue)
+    el.addEventListener(eventName, value)
 }
