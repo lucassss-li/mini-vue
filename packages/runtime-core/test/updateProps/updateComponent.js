@@ -4,9 +4,7 @@ export default {
     render() {
         return h('div', { onClick: this.change }, [
             h(component, {
-                props: {
-                    count: this.count.value,
-                },
+                count: this.count.value,
             }),
         ])
     },

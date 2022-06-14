@@ -13,10 +13,10 @@ export function createRenderer(options) {
     const { createElement, append, patchProp, createTextNode, remove } = options
 
     function render(vnode, container) {
-        patch(null, vnode, container, null)
+        patch(null, vnode, container, null, null)
     }
 
-    function patch(_vnode, vnode, container, anchor) {
+    function patch(_vnode, vnode, container, anchor, parentComponent) {
         const { type, shapeFlag } = vnode
         switch (type) {
             case TEXT: {
@@ -25,19 +25,37 @@ export function createRenderer(options) {
             }
             default: {
                 if (shapeFlag & ShapeFlags.ELEMENT) {
-                    processElement(_vnode, vnode, container, anchor)
+                    processElement(
+                        _vnode,
+                        vnode,
+                        container,
+                        anchor,
+                        parentComponent,
+                    )
                 } else if (shapeFlag & ShapeFlags.COMPONENT) {
-                    processComponent(_vnode, vnode, container, anchor)
+                    processComponent(
+                        _vnode,
+                        vnode,
+                        container,
+                        anchor,
+                        parentComponent,
+                    )
                 }
             }
         }
     }
-    function processComponent(_vnode, vnode, container, anchor) {
+    function processComponent(
+        _vnode,
+        vnode,
+        container,
+        anchor,
+        parentComponent,
+    ) {
         if (_vnode) {
             patchComponent(_vnode, vnode)
             // mountComponent(vnode, container, anchor)
         } else {
-            mountComponent(vnode, container, anchor)
+            mountComponent(vnode, container, anchor, parentComponent)
         }
     }
 
@@ -48,8 +66,8 @@ export function createRenderer(options) {
         vnode.component.update()
     }
 
-    function mountComponent(vnode, container, anchor) {
-        const instance = createComponentInstance(vnode)
+    function mountComponent(vnode, container, anchor, parentComponent) {
+        const instance = createComponentInstance(vnode, parentComponent)
         vnode.component = instance
         setupComponent(instance)
         setupRenderEffect(instance, container, anchor)
@@ -61,7 +79,7 @@ export function createRenderer(options) {
                 const preTree = container.vnode
                 const subTree = (container.vnode =
                     renderComponentRoot(instance))
-                patch(preTree, subTree, container, anchor)
+                patch(preTree, subTree, container, anchor, instance)
             },
             {
                 scheduler: () => queueJob(instance.update),
@@ -69,20 +87,20 @@ export function createRenderer(options) {
         )
     }
 
-    function processElement(_vnode, vnode, container, anchor) {
+    function processElement(_vnode, vnode, container, anchor, parentComponent) {
         if (_vnode) {
             const el = (vnode.el = _vnode.el)
-            patchElement(_vnode, vnode, el, anchor)
+            patchElement(_vnode, vnode, el, anchor, parentComponent)
         } else {
-            mountElement(vnode, container, anchor)
+            mountElement(vnode, container, anchor, parentComponent)
         }
     }
 
-    function patchElement(_vnode, vnode, el, anchor) {
+    function patchElement(_vnode, vnode, el, anchor, parentComponent) {
         const oldProps = _vnode.props
         const newProps = vnode.props
         patchProps(oldProps, newProps, el)
-        patchChildren(_vnode, vnode, el, anchor)
+        patchChildren(_vnode, vnode, el, anchor, parentComponent)
     }
 
     function patchProps(oldProps, newProps, el) {
@@ -96,7 +114,7 @@ export function createRenderer(options) {
         }
     }
 
-    function patchChildren(_vnode, vnode, container, anchor) {
+    function patchChildren(_vnode, vnode, container, anchor, parentComponent) {
         const preShapeFlag = _vnode.shapeFlag
         const shapeFlag = vnode.shapeFlag
 
@@ -112,10 +130,16 @@ export function createRenderer(options) {
                     vnode.children,
                     container,
                     anchor,
+                    parentComponent,
                 )
             } else {
                 unmountChildren(container)
-                mountChildren(vnode.children, container, anchor)
+                mountChildren(
+                    vnode.children,
+                    container,
+                    anchor,
+                    parentComponent,
+                )
             }
         }
     }
@@ -124,7 +148,7 @@ export function createRenderer(options) {
         return n1.type === n2.type && n1.key === n2.key
     }
 
-    function processChildren(c1, c2, container, parentAnchor) {
+    function processChildren(c1, c2, container, parentAnchor, parentComponent) {
         let i = 0
         let e1 = c1.length - 1
         let e2 = c2.length - 1
@@ -132,7 +156,7 @@ export function createRenderer(options) {
             const n1 = c1[i]
             const n2 = c2[i]
             if (isSameVNodeType(n1, n2)) {
-                patch(n1, n2, container, parentAnchor)
+                patch(n1, n2, container, parentAnchor, parentComponent)
             } else {
                 break
             }
@@ -142,7 +166,7 @@ export function createRenderer(options) {
             const n1 = c1[e1]
             const n2 = c2[e2]
             if (isSameVNodeType(n1, n2)) {
-                patch(n1, n2, container, parentAnchor)
+                patch(n1, n2, container, parentAnchor, parentComponent)
             } else {
                 break
             }
@@ -154,7 +178,7 @@ export function createRenderer(options) {
                 while (i <= e2) {
                     const nextPos = e2 + 1
                     const anchor = nextPos < c2.length ? c2[nextPos].el : null
-                    patch(null, c2[i], container, anchor)
+                    patch(null, c2[i], container, anchor, parentComponent)
                     i++
                 }
             }
@@ -191,7 +215,13 @@ export function createRenderer(options) {
                     remove(preChild.el)
                 } else {
                     newIndexToOldIndxMap[newIndex - s2] = i + 1
-                    patch(preChild, c2[newIndex], container, parentAnchor)
+                    patch(
+                        preChild,
+                        c2[newIndex],
+                        container,
+                        parentAnchor,
+                        parentComponent,
+                    )
                 }
             }
             const increasingNewIndexSequence = getSequence(newIndexToOldIndxMap)
@@ -202,7 +232,7 @@ export function createRenderer(options) {
                 const anchor =
                     nextIndex + 1 < c2.length ? c2[nextIndex + 1].el : null
                 if (newIndexToOldIndxMap[i] === 0) {
-                    patch(null, nextChild, container, anchor)
+                    patch(null, nextChild, container, anchor, parentComponent)
                 } else if (i !== increasingNewIndexSequence[j]) {
                     container.insertBefore(nextChild.el, anchor)
                 } else {
@@ -221,7 +251,7 @@ export function createRenderer(options) {
         })
     }
 
-    function mountElement(vnode, container, anchor) {
+    function mountElement(vnode, container, anchor, parentComponent) {
         container.vnode = vnode
         const { type, props, children } = vnode
         const element = (vnode.el = createElement(type))
@@ -229,24 +259,24 @@ export function createRenderer(options) {
             patchProp(element, key, props[key])
         }
         append(container, element, anchor)
-        mountChildren(children, element, anchor)
+        mountChildren(children, element, anchor, parentComponent)
     }
 
-    function mountChildren(children, container, anchor) {
+    function mountChildren(children, container, anchor, parentComponent) {
         if (Array.isArray(children)) {
             children.forEach(child => {
-                processChild(child, container, anchor)
+                processChild(child, container, anchor, parentComponent)
             })
         } else {
-            processChild(children, container, anchor)
+            processChild(children, container, anchor, parentComponent)
         }
     }
 
-    function processChild(child, container, anchor) {
+    function processChild(child, container, anchor, parentComponent) {
         if (!isObject(child)) {
             child = createTextVNode(child)
         }
-        patch(null, child, container, anchor)
+        patch(null, child, container, anchor, parentComponent)
     }
 
     function processText(vnode, container) {

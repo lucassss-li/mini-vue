@@ -2,11 +2,20 @@ import { isObject, isFunction } from '../../shared/index'
 import { applyOptions } from './componentOptions'
 import { instanceProxyHandlers } from './InstanceProxyHandlers'
 
-export function createComponentInstance(vnode) {
+let currentInstance
+
+export const getCurrentInstance = () => currentInstance
+const setCurrentInstance = instance => (currentInstance = instance)
+
+export function createComponentInstance(vnode, parentComponent) {
     const instance: any = {
         type: vnode.type,
         vnode,
         props: {},
+        provides: parentComponent
+            ? Object.create(parentComponent.provides)
+            : {},
+        parent: parentComponent,
     }
     instance.ctx = { _: instance }
     return instance
@@ -27,7 +36,9 @@ function setupStatefulComponent(instance) {
     instance.proxy = new Proxy(instance.ctx, instanceProxyHandlers)
     const { setup } = component
     if (setup) {
+        setCurrentInstance(instance)
         const setupResult = setup()
+        setCurrentInstance(null)
         handleSetupResult(instance, setupResult)
     } else {
         instance.setupState = {}
