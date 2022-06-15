@@ -1,4 +1,9 @@
 import { hasOwn } from '../../shared/index'
+const publicPropertiesMap = {
+    $el: i => i.vNode.el,
+    $slots: i => i.slots,
+    $props: i => i.props,
+}
 
 export const instanceProxyHandlers = {
     get({ _: instance }, key) {
@@ -15,6 +20,10 @@ export const instanceProxyHandlers = {
         }
         if (hasOwn(props, key)) {
             return props[key]
+        }
+        const publicGetter = publicPropertiesMap[key]
+        if (publicGetter) {
+            return publicGetter(instance)
         }
     },
     set({ _: instance }, key: string, value: any) {

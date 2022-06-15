@@ -76,8 +76,8 @@ export function createRenderer(options) {
     function setupRenderEffect(instance, container, anchor) {
         instance.update = effect(
             () => {
-                const preTree = container.vnode
-                const subTree = (container.vnode =
+                const preTree = instance.subTree
+                const subTree = (instance.subTree =
                     renderComponentRoot(instance))
                 patch(preTree, subTree, container, anchor, instance)
             },
@@ -252,7 +252,6 @@ export function createRenderer(options) {
     }
 
     function mountElement(vnode, container, anchor, parentComponent) {
-        container.vnode = vnode
         const { type, props, children } = vnode
         const element = (vnode.el = createElement(type))
         for (const key in props) {

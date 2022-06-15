@@ -16,6 +16,7 @@ export function createComponentInstance(vnode, parentComponent) {
             ? Object.create(parentComponent.provides)
             : {},
         parent: parentComponent,
+        slots: {},
     }
     instance.ctx = { _: instance }
     return instance
@@ -23,12 +24,16 @@ export function createComponentInstance(vnode, parentComponent) {
 
 export function setupComponent(instance) {
     initProps(instance, instance.vnode.props)
+    initSlots(instance, instance.vnode.children)
     const setupResult = setupStatefulComponent(instance)
     return setupResult
 }
 
 function initProps(instance, rawProps) {
     instance.props = Object.assign(instance.props, rawProps)
+}
+function initSlots(instance, children) {
+    instance.slots = Object.assign(instance.slots, children)
 }
 
 function setupStatefulComponent(instance) {
