@@ -107,4 +107,26 @@ describe('compiler/parse', () => {
     test('no matched endTag', () => {
         expect(() => parse('<div><div></div>')).toThrow('no matched endTag')
     })
+    test('single tag', () => {
+        const ast = parse('<div>hi,<component/></div>')
+        expect(ast).toStrictEqual({
+            type: NodeTypes.ROOT,
+            children: [
+                {
+                    type: NodeTypes.ELEMENT,
+                    tag: 'div',
+                    children: [
+                        {
+                            type: NodeTypes.TEXT,
+                            content: 'hi,',
+                        },
+                        {
+                            type: NodeTypes.SINGLE_ELEMENT,
+                            tag: 'component',
+                        },
+                    ],
+                },
+            ],
+        })
+    })
 })

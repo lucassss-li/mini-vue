@@ -30,11 +30,14 @@ function createRoot(children) {
 function parseChildren(context) {
     const nodes: any[] = []
     while (!isEnd(context)) {
+        const { source, options } = context
         let node
-        if (context.source.startsWith(context.options.delimiters[0])) {
+        if (source.startsWith(options.delimiters[0])) {
             node = parseInterpolation(context)
-        } else if (context.source.match(/^<[a-z]+>/)) {
+        } else if (source.match(/^<[a-z]+>/)) {
             node = parseElement(context)
+        } else if (source.match(/^<[a-z]+\/>/)) {
+            node = parseSingleElement(context)
         }
         if (!node) {
             node = parseText(context)
@@ -97,4 +100,14 @@ function parseElement(context) {
     advance(tag.length + 3)
     ancestors.pop()
     return node
+}
+
+function parseSingleElement(context) {
+    const { advance } = context
+    const tag = context.source.match(/^<([a-z]+)\/>/)[1]
+    advance(tag.length + 3)
+    return {
+        type: NodeTypes.SINGLE_ELEMENT,
+        tag,
+    }
 }
