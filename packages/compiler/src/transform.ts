@@ -19,6 +19,8 @@ function traverseNode(node, context) {
         case NodeTypes.ELEMENT:
             traverseChildren(node, context)
             break
+        default:
+            break
     }
 }
 
