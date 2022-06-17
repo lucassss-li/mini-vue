@@ -91,7 +91,7 @@ function parseElement(context) {
         tag,
         children: parseChildren(context),
     }
-    if (!context.source.startsWith(ancestors[ancestors.length - 1])) {
+    if (!context.source.startsWith(`</${ancestors[ancestors.length - 1]}>`)) {
         throw new Error('no matched endTag')
     }
     advance(tag.length + 3)
